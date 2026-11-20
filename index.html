@@ -2,7 +2,10 @@
 <link rel="apple-touch-icon" sizes="180x180" href="./avatar.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Vocab">
-<meta name="apple-mobile-web-app-status-bar-style" content="default"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Vocab</title>
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#8b7bf0">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Vocab</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap"><style>
 :root{--bg:#fdf5ff;--cd:#fff;--tx:#3b3355;--mu:#8c84a8;--pr:#8b7bf0;--pl:#ece8ff;--ok:#2fb98a;--no:#f0647a;--bd:#eee7f8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#1b1730;--cd:#282345;--tx:#f0ebff;--mu:#a59fc4;--pl:#3a3363;--bd:#3a3363}}
@@ -490,14 +493,6 @@ input,select,textarea{font:inherit;color:var(--tx);background:var(--bg);border:1
     align-items:center;
 }
 
-.word-filters select,
-.word-filters button{
-    align-self:center;
-    margin-top:0 !important;
-    margin-bottom:0 !important;
-    transform:translateY(0);
-}
-
 .word-filters select{
     width:100%;
     min-width:0;
@@ -524,7 +519,11 @@ input,select,textarea{font:inherit;color:var(--tx);background:var(--bg);border:1
 .exl{cursor:pointer}.exl b{color:#1a5490}
 .wi{flex:1;min-width:0;line-height:1.35}.wt{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .wt-l{min-width:0;overflow-wrap:anywhere}
-.wt>span:last-child{flex-shrink:0}.wa{display:flex;gap:4px;flex-shrink:0}
+.wt>span:last-child{flex-shrink:0}.wa{display:flex;gap:2px;flex-shrink:0}
+@media(max-width:500px){
+.wa{gap:2px}
+.wa .sm{width:28px;height:28px;min-width:28px;padding:0;font-size:13px;border-radius:7px}
+}
 @media(max-width:500px){.two{grid-template-columns:1fr}}
 </style></head><body><canvas id="cv"></canvas><div id="toast"></div>
 <header id="hd"></header><main id="main"></main>
@@ -873,13 +872,13 @@ const LEVELS=WORD_LEVELS;
 function levelBadge(w){
     const lv=Math.min(4,Math.max(1,w.level||1));
     const c=WORD_LEVELS[lv-1];
-    return `<span style="display:inline-block;padding:3px 7px;border-radius:7px;background:${c.bg};color:${c.color};font-size:11px;font-weight:800;white-space:nowrap">Level ${lv} · ${c.name}</span>`;
+    return `<span title="Level ${lv} · ${c.name}" style="display:inline-flex;align-items:center;justify-content:center;padding:3px 6px;border-radius:7px;background:${c.bg};color:${c.color};font-size:10px;font-weight:800;white-space:nowrap">L${lv}</span>`;
 }
 const isHard=w=>(w.lapses||0)>=8;
 function statusBadge(w){return statusBadge0(w)+(isHard(w)?` <span style="display:inline-block;padding:3px 7px;border-radius:7px;background:#FFE0E6;color:#A32D2D;font-size:11px;font-weight:800;white-space:nowrap">⚠️ Từ khó</span>`:'')}
 function statusBadge0(w){
     return isNewW(w)
-        ?`<span style="display:inline-block;padding:3px 7px;border-radius:7px;background:#ECEAF3;color:#6b6785;font-size:11px;font-weight:800;white-space:nowrap">Chưa học</span>`
+        ?`<span title="Chưa học" style="display:inline-block;padding:3px 6px;border-radius:7px;background:#ECEAF3;color:#6b6785;font-size:10px;font-weight:800;white-space:nowrap">Mới</span>`
         :levelBadge(w);
 }
 
@@ -961,8 +960,8 @@ const hl=(s,w,m)=>{if(!w)return esc(s);const re=new RegExp('\\b('+String(w).repl
 function backHTML(w,rev){
     const ex=[w.e1,w.e2].filter(Boolean),cl=pp(w.col);
     return`${rev?`<div class="bm">${esc(w.en)}</div><div class="mu"><i>${esc(w.ipa)}</i></div>`:`<div class="bm">${esc(w.vi)}</div>`}
-    ${ex.length?`<div class="bx b1"><h5>📝 Ví dụ <small style="font-weight:600;opacity:.7">(chạm để nghe)</small></h5>${ex.map(e=>`<p class="exl" data-t="${esc(e)}" onclick="event.stopPropagation();speak(this.dataset.t)">🔊 ${hl(e,w.en)}</p>`).join('')}</div>`:''}
-    ${cl.length?`<div class="bx b4"><h5>🔗 Cụm từ thường gặp</h5>${pg(cl)}</div>`:''}
+    ${ex.length?`<div class="bx b1"><h5>📝 Ví dụ <small style="font-weight:600;opacity:.7"></small></h5>${ex.map(e=>`<p class="exl" data-t="${esc(e)}" onclick="event.stopPropagation();speak(this.dataset.t)">🔊 ${hl(e,w.en)}</p>`).join('')}</div>`:''}
+    ${cl.length?`<div class="bx b4"><h5>🔗 Collocations</h5>${pg(cl)}</div>`:''}
     ${(w.syn||w.ant)?`<div class="two"><div class="bx b2"><h5>Đồng nghĩa</h5>${pg(pp(w.syn))}</div><div class="bx b3"><h5>Trái nghĩa</h5>${pg(pp(w.ant))}</div></div>`:''}`;
 }
 const pg=a=>a.length?`<div class="cg">${a.map(c=>`<span>• ${esc(c[0])}</span><span>${esc(c[1])}</span>`).join('')}</div>`:'<p>—</p>';
@@ -1168,12 +1167,12 @@ function list(){
     <button class="sm" onclick="say('${w.id}')">🔊</button>
     <div class="wi">
     <div class="wt">
-        <span class="wt-l"><b>${esc(w.en)}</b> <span class="mu">${esc(w.ipa)} ${esc(w.type)}</span> ${w.cefr?`<span class="tag">${w.cefr}</span>`:''}</span>
-        ${statusBadge(w)}
-    </div>
-    <div>${esc(w.vi)}${SC=='all'?` <small class="mu">· ${esc(S.topics.find(t=>t.id==w.tid)?.name)}</small>`:''}</div>
+    <span class="wt-l"><b>${esc(w.en)}</b> <span class="mu">${esc(w.ipa)} ${esc(w.type)}</span> ${w.cefr?`<span class="tag">${w.cefr}</span>`:''}</span>
+</div>
+<div>${esc(w.vi)}${SC=='all'?` <small class="mu">· ${esc(S.topics.find(t=>t.id==w.tid)?.name)}</small>`:''}</div>
 </div>
     <div class="wa">
+        ${statusBadge(w)}
         <button class="sm" title="Xem thẻ" onclick="pv('${w.id}')">👁️</button>
         <button class="sm" title="Sửa" onclick="EDIT='${w.id}';render();scrollTo(0,0)">✏️</button>
         <button class="sm" title="Xóa từ" style="color:var(--no)" onclick="delW('${w.id}')">🗑️</button>
